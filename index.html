@@ -376,8 +376,6 @@
             max-width: 680px;
             margin: 0 auto;
             width: 100%;
-            height: 100vh;
-            height: 100dvh;
         }
 
         .quiz-header {
@@ -432,11 +430,9 @@
         }
 
         .quiz-body {
-            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 0;
             overflow: hidden;
         }
 
@@ -451,8 +447,6 @@
             animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
-            min-height: 0;
-            flex: 1;
         }
 
         @keyframes cardSlideIn {
@@ -494,8 +488,7 @@
             border-radius: 14px;
             overflow: hidden;
             background: var(--bg-card-light);
-            flex: 1;
-            min-height: 0;
+            aspect-ratio: 4/3;
             transition: border-color 0.4s, box-shadow 0.4s;
         }
 
@@ -745,7 +738,8 @@
             .image-container { border-radius: 12px; }
             .image-container img { padding: 6px; }
             .answer-text { font-size: 0.95rem; padding: 6px 0 0; }
-            .grade-buttons .btn { padding: 12px 16px; font-size: 0.85rem; }
+            .grade-buttons { flex-direction: column; gap: 8px; }
+            .grade-buttons .btn { width: 100%; flex: none; padding: 12px 16px; font-size: 0.85rem; }
 
             .result-card { padding: 24px 20px; border-radius: 24px; }
             .result-emoji { font-size: 56px; margin-bottom: 16px; }
@@ -790,8 +784,10 @@
             .welcome-subtitle { font-size: 1.05rem; max-width: 400px; }
             .info-badge { font-size: 0.95rem; padding: 14px 28px; }
 
-            #quiz-screen { max-width: 600px; padding: 28px; }
-            .question-card { padding: 28px; }
+            #quiz-screen { max-width: 600px; padding: 28px; height: 100vh; height: 100dvh; }
+            .quiz-body { flex: 1; min-height: 0; }
+            .question-card { flex: 1; min-height: 0; padding: 28px; }
+            .image-container { flex: 1; min-height: 0; aspect-ratio: auto; }
             .question-text { font-size: 1.2rem; }
             .answer-text { font-size: 1.15rem; }
         }
@@ -806,7 +802,10 @@
             .info-badge { font-size: 0.95rem; padding: 14px 28px; }
             .btn { padding: 18px 52px; font-size: 1.05rem; }
 
-            #quiz-screen { max-width: 680px; padding: 24px; }
+            #quiz-screen { max-width: 680px; padding: 24px; height: 100vh; height: 100dvh; }
+            .quiz-body { flex: 1; min-height: 0; }
+            .question-card { flex: 1; min-height: 0; }
+            .image-container { flex: 1; min-height: 0; aspect-ratio: auto; }
             .quiz-header { padding: 14px 24px; border-radius: 20px; margin-bottom: 16px; }
             .quiz-progress { font-size: 1rem; }
             .quiz-score { font-size: 1rem; }
@@ -831,7 +830,10 @@
             .info-badge { font-size: 1rem; padding: 16px 32px; gap: 10px; }
             .btn { padding: 20px 60px; font-size: 1.15rem; }
 
-            #quiz-screen { max-width: 780px; padding: 32px; }
+            #quiz-screen { max-width: 780px; padding: 32px; height: 100vh; height: 100dvh; }
+            .quiz-body { flex: 1; min-height: 0; }
+            .question-card { flex: 1; min-height: 0; }
+            .image-container { flex: 1; min-height: 0; aspect-ratio: auto; }
             .quiz-header { padding: 18px 28px; border-radius: 24px; margin-bottom: 20px; }
             .quiz-progress { font-size: 1.15rem; }
             .quiz-progress .current { font-size: 1.4rem; }
