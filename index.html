@@ -513,28 +513,14 @@
             box-shadow: 0 0 30px rgba(214, 48, 49, 0.15);
         }
 
-        .answer-label {
-            position: absolute;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%) translateY(8px);
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            color: #fff;
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 0.9rem;
+        .answer-text {
+            text-align: center;
+            font-size: 1.1rem;
             font-weight: 700;
-            letter-spacing: 0.03em;
-            white-space: nowrap;
-            z-index: 5;
+            color: var(--primary);
+            padding: 14px 0 0;
             opacity: 0;
-            animation: answerLabelIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-        }
-
-        @keyframes answerLabelIn {
-            from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
         }
 
         .image-container img.reveal-anim {
@@ -807,6 +793,28 @@
             .timer-ring-svg { width: 44px; height: 44px; }
             .timer-ring-fill { stroke-dasharray: 118; }
             .timer-number { font-size: 0.85rem; }
+        }
+
+        @media (min-width: 1024px) {
+            #quiz-screen { max-width: 880px; }
+            .question-text { font-size: 1.3rem; }
+            .answer-text { font-size: 1.25rem; }
+            .btn { font-size: 1.1rem; }
+        }
+
+        @media (min-width: 1600px) {
+            #quiz-screen { max-width: 960px; }
+            .quiz-header { padding: 16px 24px; border-radius: 24px; margin-bottom: 28px; }
+            .quiz-progress { font-size: 1.1rem; }
+            .quiz-score { font-size: 1.1rem; }
+            .timer-ring-wrap { width: 64px; height: 64px; }
+            .timer-ring-svg { width: 64px; height: 64px; }
+            .timer-ring-fill { stroke-dasharray: 172; }
+            .timer-number { font-size: 1.2rem; }
+            .question-card { padding: 32px; border-radius: 28px; }
+            .question-text { font-size: 1.4rem; }
+            .answer-text { font-size: 1.35rem; }
+            .btn { padding: 20px 56px; font-size: 1.15rem; }
         }
 
         /* ==================== CONFETTI ==================== */
@@ -1162,12 +1170,12 @@ function doReveal() {
     img.onerror = function() { this.src = `Jawaban/Jawaban${num}.jpg`; };
     img.classList.add('reveal-anim');
 
-    const oldLabel = imgContainer.querySelector('.answer-label');
+    const oldLabel = imgContainer.parentElement.querySelector('.answer-text');
     if (oldLabel) oldLabel.remove();
     const ansLabel = document.createElement('div');
-    ansLabel.className = 'answer-label';
-    ansLabel.textContent = `${num}. ${ANSWERS[currentQuestion]}`;
-    imgContainer.appendChild(ansLabel);
+    ansLabel.className = 'answer-text';
+    ansLabel.textContent = ANSWERS[currentQuestion];
+    imgContainer.parentElement.insertBefore(ansLabel, imgContainer.nextSibling);
 
     const label = document.getElementById('q-label');
     label.classList.add('revealed');
