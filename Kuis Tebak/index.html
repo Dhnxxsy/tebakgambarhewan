@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kuis Tebak Gambar</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6c5ce7;
+            --primary-dark: #5a4bd1;
+            --secondary: #00cec9;
+            --accent: #e84393;
+            --success: #00b894;
+            --danger: #d63031;
+            --bg-base: #f0f2f5;
+            --bg-card: #ffffff;
+            --bg-card-light: #f4f5f7;
+            --bg-card-hover: #f8f9fa;
+            --text-primary: #1a1a2e;
+            --text-secondary: #6c757d;
+            --text-muted: #adb5bd;
+            --border: rgba(0, 0, 0, 0.06);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --shadow-glow: 0 4px 24px rgba(108, 92, 231, 0.15);
+            --gradient-1: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            --gradient-2: linear-gradient(135deg, #00cec9, #81ecec);
+            --gradient-3: linear-gradient(135deg, #e84393, #fab1a0);
+            --gradient-4: linear-gradient(135deg, #00b894, #55efc4);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ==================== PARTICLES ==================== */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatParticle linear infinite;
+            opacity: 0.25;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.25; }
+            90% { opacity: 0.25; }
+            100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ==================== SCREENS ==================== */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            animation: fadeInScreen 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen.active { display: flex; }
+
+        @keyframes fadeInScreen {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .screen-exit {
+            animation: screenExit 0.4s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+        }
+
+        @keyframes screenExit {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(-30px) scale(0.96); }
+        }
+
+        /* ==================== WELCOME SCREEN ==================== */
+        #welcome-screen {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            text-align: center;
+        }
+
+        .welcome-accent {
+            width: 64px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--gradient-1);
+            margin-bottom: 32px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-title {
+            font-size: clamp(2.2rem, 7vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #1a1a2e 30%, #6c5ce7 70%, #e84393);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+
+        .welcome-subtitle {
+            font-size: clamp(0.85rem, 2.5vw, 1.05rem);
+            color: var(--text-secondary);
+            margin-bottom: 56px;
+            max-width: 360px;
+            line-height: 1.8;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+        }
+
+        .welcome-info {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 56px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .info-badge {
+            background: rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 50px;
+            padding: 12px 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.02em;
+            transition: all 0.3s ease;
+        }
+
+        .info-badge:hover {
+            background: rgba(0,0,0,0.06);
+            border-color: rgba(108, 92, 231, 0.4);
+            color: var(--primary);
+        }
+
+        .info-badge .badge-icon { font-size: 1.1rem; }
+
+        /* ==================== BUTTONS ==================== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 56px;
+            border: none;
+            border-radius: 60px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.65s both;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover::before { opacity: 1; }
+        .btn:active { transform: scale(0.96); }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 8px 30px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(108, 92, 231, 0.5);
+        }
+
+        .btn-success {
+            background: var(--gradient-4);
+            color: #0a0a1a;
+            box-shadow: 0 8px 30px rgba(0, 184, 148, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 184, 148, 0.5);
+        }
+
+        .btn-danger {
+            background: var(--gradient-3);
+            color: white;
+            box-shadow: 0 8px 30px rgba(253, 121, 168, 0.4);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(253, 121, 168, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid rgba(0,0,0,0.1);
+            box-shadow: none;
+            padding: 16px 36px;
+        }
+
+        .btn-outline:hover {
+            background: rgba(0,0,0,0.03);
+            border-color: rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .btn .btn-icon { font-size: 1.2rem; }
+
+        /* ==================== TIMER ==================== */
+        .timer-ring-wrap {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            flex-shrink: 0;
+        }
+
+        .timer-ring-svg {
+            width: 56px;
+            height: 56px;
+            transform: rotate(-90deg);
+        }
+
+        .timer-ring-bg {
+            fill: none;
+            stroke: rgba(0,0,0,0.08);
+            stroke-width: 5;
+        }
+
+        .timer-ring-fill {
+            fill: none;
+            stroke: var(--secondary);
+            stroke-width: 5;
+            stroke-linecap: round;
+            stroke-dasharray: 150.8;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+        }
+
+        .timer-ring-fill.warning { stroke: #fdcb6e; }
+        .timer-ring-fill.danger { stroke: #e17055; }
+        .timer-ring-fill.critical { stroke: var(--danger); animation: timerPulseStroke 0.5s ease-in-out infinite; }
+
+        @keyframes timerPulseStroke {
+            0%, 100% { stroke-width: 5; }
+            50% { stroke-width: 7; }
+        }
+
+        .timer-number {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-number.warning { color: #fdcb6e; }
+        .timer-number.danger { color: #e17055; }
+        .timer-number.critical { color: var(--danger); animation: timerBounceText 0.5s ease-in-out infinite; }
+
+        @keyframes timerBounceText {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .timer-shake {
+            animation: timerShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes timerShake {
+            10%, 90% { transform: translateX(-1px); }
+            20%, 80% { transform: translateX(2px); }
+            30%, 50%, 70% { transform: translateX(-3px); }
+            40%, 60% { transform: translateX(3px); }
+        }
+
+        .timer-timesup-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .timesup-box {
+            background: var(--bg-card);
+            border: 2px solid rgba(214, 48, 49, 0.4);
+            border-radius: 24px;
+            padding: 40px 48px;
+            text-align: center;
+            animation: timesupPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 60px rgba(214, 48, 49, 0.2);
+        }
+
+        @keyframes timesupPop {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .timesup-emoji { font-size: 56px; margin-bottom: 16px; }
+
+        .timesup-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--danger);
+            margin-bottom: 8px;
+        }
+
+        .timesup-sub {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        /* ==================== QUIZ SCREEN ==================== */
+        #quiz-screen {
+            flex-direction: column;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.06);
+            gap: 12px;
+        }
+
+        .quiz-progress {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .quiz-progress .current {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(0,0,0,0.06);
+            border-radius: 3px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-2);
+            border-radius: 3px;
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .quiz-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .quiz-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .question-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid rgba(0,0,0,0.06);
+            padding: 24px;
+            width: 100%;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardSlideIn {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .question-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gradient-1);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .question-label.revealed {
+            background: var(--gradient-4);
+            color: #0a0a1a;
+        }
+
+        .question-text {
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            font-weight: 600;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--bg-card-light);
+            aspect-ratio: 16/10;
+            transition: border-color 0.4s, box-shadow 0.4s;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 12px;
+        }
+
+        .image-container:hover img { transform: scale(1.02); }
+
+        .image-container .image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.15), transparent 30%);
+            pointer-events: none;
+        }
+
+        .image-container.reveal-border {
+            border: 2px solid rgba(0, 184, 148, 0.5);
+            box-shadow: 0 0 30px rgba(0, 184, 148, 0.15);
+        }
+
+        .image-container.timeup-border {
+            border: 2px solid rgba(214, 48, 49, 0.5);
+            box-shadow: 0 0 30px rgba(214, 48, 49, 0.15);
+        }
+
+        .image-container img.reveal-anim {
+            animation: zoomReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes zoomReveal {
+            from { transform: scale(1.15); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .self-grade { text-align: center; }
+
+        .self-grade p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .grade-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .grade-buttons .btn {
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        /* ==================== RESULT SCREEN ==================== */
+        #result-screen {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border-radius: 32px;
+            border: 1px solid rgba(0,0,0,0.06);
+            padding: clamp(32px, 5vw, 56px);
+            max-width: 480px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            animation: resultBounce 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes resultBounce {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.02); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .result-emoji {
+            font-size: 72px;
+            margin-bottom: 24px;
+            animation: emojiPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+        }
+
+        @keyframes emojiPop {
+            from { transform: scale(0) rotate(-20deg); }
+            to { transform: scale(1) rotate(0deg); }
+        }
+
+        .result-title {
+            font-size: clamp(1.6rem, 5vw, 2.2rem);
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 36px;
+        }
+
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            margin: 0 auto 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .score-circle svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .score-circle circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+
+        .score-circle .circle-bg { stroke: rgba(0,0,0,0.06); }
+
+        .score-circle .circle-fill {
+            stroke: url(#scoreGradient);
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+        }
+
+        .score-number {
+            font-size: 2.8rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .score-total {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat { text-align: center; }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-correct .stat-value { color: var(--success); }
+        .stat-wrong .stat-value { color: var(--danger); }
+        .stat-timeout .stat-value { color: #fdcb6e; }
+
+        .result-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .result-actions .btn {
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 600px) {
+            #welcome-screen {
+                padding: 32px 20px;
+                gap: 0;
+            }
+
+            .welcome-accent {
+                width: 48px;
+                margin-bottom: 24px;
+            }
+
+            .welcome-title {
+                font-size: clamp(1.8rem, 8vw, 2.6rem);
+                margin-bottom: 12px;
+            }
+
+            .welcome-subtitle {
+                font-size: 0.85rem;
+                margin-bottom: 36px;
+                line-height: 1.7;
+            }
+
+            .welcome-info {
+                gap: 10px;
+                margin-bottom: 40px;
+            }
+
+            .info-badge {
+                padding: 10px 18px;
+                font-size: 0.8rem;
+                gap: 6px;
+            }
+
+            .info-badge .badge-icon { font-size: 1rem; }
+
+            .btn {
+                padding: 16px 40px;
+                font-size: 1rem;
+                width: auto;
+                min-width: 200px;
+                justify-content: center;
+            }
+
+            .quiz-header {
+                padding: 10px 14px;
+                border-radius: 16px;
+                gap: 8px;
+            }
+
+            .quiz-progress { font-size: 0.85rem; }
+            .quiz-score { font-size: 0.85rem; }
+
+            .timer-ring-wrap { width: 48px; height: 48px; }
+            .timer-ring-svg { width: 48px; height: 48px; }
+            .timer-ring-fill { stroke-width: 4.5; stroke-dasharray: 129; }
+            .timer-number { font-size: 0.9rem; }
+
+            .question-card { padding: 16px; border-radius: 20px; }
+            .image-container { aspect-ratio: 4/3; }
+
+            .grade-buttons { flex-direction: column; }
+            .grade-buttons .btn { width: 100%; }
+
+            .result-stats { gap: 16px; }
+
+            .timesup-box { padding: 32px 28px; margin: 0 16px; }
+        }
+
+        @media (max-width: 380px) {
+            #welcome-screen {
+                padding: 28px 16px;
+            }
+
+            .welcome-title {
+                font-size: 1.7rem;
+            }
+
+            .welcome-info {
+                gap: 8px;
+            }
+
+            .info-badge {
+                padding: 8px 14px;
+                font-size: 0.75rem;
+            }
+
+            .quiz-header { padding: 8px 10px; }
+            .question-card { padding: 14px; }
+            .result-card { padding: 24px 20px; }
+            .timer-ring-wrap { width: 44px; height: 44px; }
+            .timer-ring-svg { width: 44px; height: 44px; }
+            .timer-ring-fill { stroke-dasharray: 118; }
+            .timer-number { font-size: 0.85rem; }
+        }
+
+        /* ==================== CONFETTI ==================== */
+        .confetti-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+
+        /* ==================== MISC ==================== */
+        @media (hover: none) {
+            .btn:active { transform: scale(0.95); transition: transform 0.1s; }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+
+        .quiz-header, .question-card {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-particles" id="particles"></div>
+
+<!-- WELCOME SCREEN -->
+<div class="screen active" id="welcome-screen">
+    <div class="welcome-accent"></div>
+    <h1 class="welcome-title">Kuis Tebak<br>Gambar</h1>
+    <p class="welcome-subtitle">Tebak gambar yang ditampilkan dan buktikan seberapa tajam penglihatanmu!</p>
+    <div class="welcome-info">
+        <div class="info-badge">
+            <span class="badge-icon">🖼️</span>
+            <span>9 Gambar</span>
+        </div>
+        <div class="info-badge">
+            <span class="badge-icon">⏱️</span>
+            <span>60 Detik</span>
+        </div>
+        <div class="info-badge">
+            <span class="badge-icon">🎯</span>
+            <span>Self-Grade</span>
+        </div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">
+        Mulai Kuis
+    </button>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div class="screen" id="quiz-screen">
+    <div class="quiz-header">
+        <div class="quiz-progress">
+            <span class="current" id="current-q">1</span>
+            <span>/ <span id="total-q">9</span></span>
+        </div>
+        <div class="timer-ring-wrap" id="timer-wrap">
+            <svg class="timer-ring-svg" viewBox="0 0 56 56">
+                <circle class="timer-ring-bg" cx="28" cy="28" r="24"/>
+                <circle class="timer-ring-fill" id="timer-ring" cx="28" cy="28" r="24"/>
+            </svg>
+            <span class="timer-number" id="timer-number">30</span>
+        </div>
+        <div class="quiz-score">
+            <span>⭐</span>
+            <span id="score-display">0</span>
+        </div>
+    </div>
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="quiz-body" id="quiz-body"></div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div class="screen" id="result-screen">
+    <div class="result-card">
+        <div class="result-emoji" id="result-emoji">🏆</div>
+        <h2 class="result-title" id="result-title">Keren!</h2>
+        <p class="result-subtitle" id="result-subtitle">Kamu memiliki ketajaman mata yang luar biasa!</p>
+
+        <div class="score-circle">
+            <svg viewBox="0 0 160 160">
+                <defs>
+                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#6c5ce7"/>
+                        <stop offset="100%" stop-color="#00cec9"/>
+                    </linearGradient>
+                </defs>
+                <circle class="circle-bg" cx="80" cy="80" r="70"/>
+                <circle class="circle-fill" id="circle-fill" cx="80" cy="80" r="70"/>
+            </svg>
+            <span class="score-number" id="final-score">0</span>
+            <span class="score-total">/ 9</span>
+        </div>
+
+        <div class="result-stats">
+            <div class="stat stat-correct">
+                <div class="stat-value" id="stat-correct">0</div>
+                <div class="stat-label">Benar</div>
+            </div>
+            <div class="stat stat-wrong">
+                <div class="stat-value" id="stat-wrong">0</div>
+                <div class="stat-label">Salah</div>
+            </div>
+            <div class="stat stat-timeout">
+                <div class="stat-value" id="stat-timeout">0</div>
+                <div class="stat-label">Timeout</div>
+            </div>
+        </div>
+
+        <div class="result-actions">
+            <button class="btn btn-primary" onclick="restartQuiz()">
+                <span class="btn-icon">🔄</span>
+                Main Lagi
+            </button>
+            <button class="btn btn-outline" onclick="goHome()">
+                <span class="btn-icon">🏠</span>
+                Menu Utama
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="confetti-container" id="confetti"></div>
+<audio id="reveal-sfx" src="reveal-sfx.mp3" preload="auto"></audio>
+<audio id="timer-tick" src="timer-tick.mp3" preload="auto" loop></audio>
+
+<script>
+const TOTAL_QUESTIONS = 9;
+const TIME_PER_QUESTION = 60;
+const TIMER_CIRCUMFERENCE = 150.8;
+
+let currentQuestion = 0;
+let score = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let timeoutCount = 0;
+let isRevealed = false;
+let answered = false;
+
+let timerInterval = null;
+let timeLeft = TIME_PER_QUESTION;
+let timerRunning = false;
+let currentTimedOut = false;
+
+function createParticles() {
+    const container = document.getElementById('particles');
+    const colors = ['#6c5ce7', '#00cec9', '#fd79a8', '#a29bfe', '#55efc4'];
+    for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 6 + 2;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.animationDuration = (Math.random() * 15 + 10) + 's';
+        p.style.animationDelay = (Math.random() * 10) + 's';
+        container.appendChild(p);
+    }
+}
+
+function switchScreen(from, to, callback) {
+    const fromEl = document.getElementById(from);
+    const toEl = document.getElementById(to);
+    fromEl.classList.add('screen-exit');
+    setTimeout(() => {
+        fromEl.classList.remove('active', 'screen-exit');
+        toEl.classList.add('active');
+        if (callback) callback();
+    }, 350);
+}
+
+/* ==================== TIMER ==================== */
+function startTimer() {
+    stopTimer();
+    timeLeft = TIME_PER_QUESTION;
+    timerRunning = true;
+    updateTimerDisplay();
+    const tick = document.getElementById('timer-tick');
+    tick.currentTime = 0;
+    tick.play().catch(() => {});
+    timerInterval = setInterval(() => {
+        if (!timerRunning) return;
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+            stopTimer();
+            onTimeUp();
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    timerRunning = false;
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    const tick = document.getElementById('timer-tick');
+    tick.pause();
+    tick.currentTime = 0;
+}
+
+function updateTimerDisplay() {
+    const ring = document.getElementById('timer-ring');
+    const num = document.getElementById('timer-number');
+    const wrap = document.getElementById('timer-wrap');
+
+    if (!ring || !num) return;
+
+    const pct = timeLeft / TIME_PER_QUESTION;
+    ring.style.strokeDashoffset = TIMER_CIRCUMFERENCE * (1 - pct);
+    num.textContent = timeLeft;
+
+    ring.classList.remove('warning', 'danger', 'critical');
+    num.classList.remove('warning', 'danger', 'critical');
+    wrap.classList.remove('timer-shake');
+
+    if (timeLeft <= 8) {
+        ring.classList.add('critical');
+        num.classList.add('critical');
+        if (timeLeft <= 5 && timeLeft > 0) {
+            void wrap.offsetWidth;
+            wrap.classList.add('timer-shake');
+        }
+    } else if (timeLeft <= 15) {
+        ring.classList.add('danger');
+        num.classList.add('danger');
+    } else if (timeLeft <= 30) {
+        ring.classList.add('warning');
+        num.classList.add('warning');
+    }
+}
+
+function onTimeUp() {
+    if (answered) return;
+    answered = true;
+    isRevealed = true;
+    currentTimedOut = true;
+    timeoutCount++;
+
+    const wrap = document.getElementById('timer-wrap');
+    wrap.classList.add('timer-shake');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'timer-timesup-overlay';
+    overlay.id = 'timesup-overlay';
+    overlay.innerHTML = `
+        <div class="timesup-box">
+            <div class="timesup-emoji">⏰</div>
+            <div class="timesup-text">Waktu Habis!</div>
+            <div class="timesup-sub">Jawaban sedang ditampilkan...</div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    setTimeout(() => {
+        overlay.remove();
+        doReveal();
+    }, 1500);
+}
+
+/* ==================== QUIZ ==================== */
+function startQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    correctCount = 0;
+    wrongCount = 0;
+    timeoutCount = 0;
+    switchScreen('welcome-screen', 'quiz-screen', () => renderQuestion());
+}
+
+function renderQuestion() {
+    isRevealed = false;
+    answered = false;
+    currentTimedOut = false;
+    const num = currentQuestion + 1;
+    document.getElementById('current-q').textContent = num;
+    document.getElementById('score-display').textContent = score;
+    document.getElementById('progress-bar').style.width = ((currentQuestion / TOTAL_QUESTIONS) * 100) + '%';
+
+    const body = document.getElementById('quiz-body');
+    body.innerHTML = `
+        <div class="question-card" id="question-card">
+            <div class="question-label" id="q-label">
+                <span>❓</span>
+                <span>Pertanyaan ${num}</span>
+            </div>
+            <p class="question-text">Coba tebak, apa yang ada di gambar ini?</p>
+            <div class="image-container" id="guest-image">
+                <img src="Guest/Guest${num}.jpeg" alt="Tebak Gambar ${num}" onerror="this.src='Guest/Guest${num}.jpg'">
+                <div class="image-overlay"></div>
+            </div>
+        </div>
+        <div class="quiz-actions" id="quiz-actions">
+            <button class="btn btn-primary" onclick="revealAnswer()" id="reveal-btn">
+                <span class="btn-icon">👁️</span>
+                Lihat Jawaban
+            </button>
+        </div>
+    `;
+
+    startTimer();
+}
+
+function revealAnswer() {
+    if (answered) return;
+    answered = true;
+    isRevealed = true;
+    currentTimedOut = false;
+    stopTimer();
+    doReveal();
+}
+
+function doReveal() {
+    const num = currentQuestion + 1;
+
+    const sfx = document.getElementById('reveal-sfx');
+    sfx.currentTime = 0;
+    sfx.play().catch(() => {});
+
+    const imgContainer = document.getElementById('guest-image');
+    const img = imgContainer.querySelector('img');
+
+    if (currentTimedOut) {
+        imgContainer.classList.add('timeup-border');
+    } else {
+        imgContainer.classList.add('reveal-border');
+    }
+    img.src = `Jawaban/Jawaban${num}.jpeg`;
+    img.onerror = function() { this.src = `Jawaban/Jawaban${num}.jpg`; };
+    img.classList.add('reveal-anim');
+
+    const label = document.getElementById('q-label');
+    label.classList.add('revealed');
+    label.innerHTML = '<span>✅</span><span>Jawaban</span>';
+
+    const actionsEl = document.getElementById('quiz-actions');
+    actionsEl.innerHTML = `
+        <p style="color: var(--text-secondary); font-weight: 500; width: 100%; text-align: center; margin-bottom: 8px;">
+            ${currentTimedOut ? '⏳ Waktu habis! Apakah jawabanmu benar?' : 'Apakah jawabanmu benar?'}
+        </p>
+        <div class="grade-buttons">
+            <button class="btn btn-success" onclick="gradeAnswer(true)">
+                <span class="btn-icon">✅</span>
+                Benar!
+            </button>
+            <button class="btn btn-danger" onclick="gradeAnswer(false)">
+                <span class="btn-icon">❌</span>
+                Salah
+            </button>
+        </div>
+    `;
+    actionsEl.style.display = 'flex';
+    actionsEl.style.flexDirection = 'column';
+    actionsEl.style.alignItems = 'center';
+    actionsEl.style.animation = 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+}
+
+function gradeAnswer(correct) {
+    if (!isRevealed) return;
+
+    if (correct) {
+        score++;
+        correctCount++;
+    } else {
+        wrongCount++;
+    }
+    document.getElementById('score-display').textContent = score;
+
+    currentQuestion++;
+
+    if (currentQuestion >= TOTAL_QUESTIONS) {
+        setTimeout(() => showResults(), 400);
+    } else {
+        setTimeout(() => {
+            renderQuestion();
+        }, 300);
+    }
+}
+
+function showResults() {
+    stopTimer();
+    switchScreen('quiz-screen', 'result-screen', () => {
+        const percentage = (score / TOTAL_QUESTIONS) * 100;
+        let emoji, title, subtitle;
+
+        if (percentage === 100) {
+            emoji = '🏆'; title = 'Sempurna!'; subtitle = 'Kamu benar-benar jenius! Skor sempurna!';
+            launchConfetti();
+        } else if (percentage >= 78) {
+            emoji = '🌟'; title = 'Luar Biasa!'; subtitle = 'Ketajaman mata kamu sangat mengagumkan!';
+            launchConfetti();
+        } else if (percentage >= 56) {
+            emoji = '💪'; title = 'Bagus!'; subtitle = 'Kamu sudah cukup tajam, tingkatkan lagi!';
+        } else if (percentage >= 33) {
+            emoji = '🤔'; title = 'Cukup Lumayan'; subtitle = 'Masih perlu latihan lagi nih!';
+        } else {
+            emoji = '😅'; title = 'Perlu Latihan'; subtitle = 'Jangan menyerah, coba lagi ya!';
+        }
+
+        document.getElementById('result-emoji').textContent = emoji;
+        document.getElementById('result-title').textContent = title;
+        document.getElementById('result-subtitle').textContent = subtitle;
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('stat-correct').textContent = correctCount;
+        document.getElementById('stat-wrong').textContent = wrongCount;
+        document.getElementById('stat-timeout').textContent = timeoutCount;
+
+        const circumference = 2 * Math.PI * 70;
+        const offset = circumference - (score / TOTAL_QUESTIONS) * circumference;
+        setTimeout(() => {
+            document.getElementById('circle-fill').style.strokeDashoffset = offset;
+        }, 100);
+    });
+}
+
+function restartQuiz() {
+    switchScreen('result-screen', 'quiz-screen', () => {
+        currentQuestion = 0;
+        score = 0;
+        correctCount = 0;
+        wrongCount = 0;
+        timeoutCount = 0;
+        currentTimedOut = false;
+        document.getElementById('circle-fill').style.strokeDashoffset = 440;
+        renderQuestion();
+    });
+}
+
+function goHome() {
+    stopTimer();
+    document.getElementById('circle-fill').style.strokeDashoffset = 440;
+    switchScreen('result-screen', 'welcome-screen');
+}
+
+function launchConfetti() {
+    const container = document.getElementById('confetti');
+    container.innerHTML = '';
+    const colors = ['#6c5ce7', '#00cec9', '#fd79a8', '#a29bfe', '#55efc4', '#fab1a0', '#fdcb6e', '#e17055'];
+    for (let i = 0; i < 80; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const shape = Math.random() > 0.5 ? 'circle' : 'square';
+        const size = Math.random() * 8 + 6;
+        piece.style.width = size + 'px';
+        piece.style.height = size + 'px';
+        piece.style.background = color;
+        piece.style.borderRadius = shape === 'circle' ? '50%' : '2px';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        piece.style.animationDelay = (Math.random() * 1.5) + 's';
+        container.appendChild(piece);
+    }
+    setTimeout(() => { container.innerHTML = ''; }, 5000);
+}
+
+createParticles();
+</script>
+
+</body>
+</html>
